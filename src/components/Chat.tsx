@@ -1,12 +1,7 @@
 import tw from '@/lib/tailwind'
 import responsePDF from '@/types/responsePDF'
 import React, { useEffect, useRef, useState } from 'react'
-import {
-  ScrollView,
-  TextInputKeyPressEventData,
-  View,
-  Text,
-} from 'react-native'
+import { ScrollView, TextInputKeyPressEventData, View } from 'react-native'
 import BalaoMensagem from './BalaoMensagem'
 import useLoading from '@/hooks/useLoading'
 import getRespostaGPT, { Mensagem } from '@/lib/api/getRespostaGPT'
