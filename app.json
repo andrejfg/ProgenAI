@@ -1,16 +1,17 @@
 {
   "expo": {
-    "name": "expo-sdk49-twrnc-template",
-    "slug": "expo-sdk49-twrnc-template",
+    "name": "progenai-app",
+    "slug": "progenai-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./src/assets/images/icon.png",
-    "scheme": "myapp",
+    "backgroundColor": "#000000",
+    "scheme": "progenai",
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./src/assets/images/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#000000"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -21,8 +22,9 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      }
+        "backgroundColor": "#000000"
+      },
+      "package": "com.iaplus.progenaiapp"
     },
     "web": {
       "bundler": "metro",
@@ -35,6 +37,14 @@
     "experiments": {
       "typedRoutes": true,
       "tsconfigPaths": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "b5f4421a-e63f-4509-bd0e-5c06a553d1a1"
+      }
     }
   }
 }
