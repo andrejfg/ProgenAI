@@ -2,50 +2,96 @@ import { View, Text, ActivityIndicator } from 'react-native'
 import DocumentPicker from '@/components/DocumentPicker'
 import { DocumentPickerAsset } from 'expo-document-picker'
 import tw from '@/lib/tailwind'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import getPrompt from '@/lib/api/getPrompt'
 import { router } from 'expo-router'
 import { useAtom } from 'jotai'
 import { data } from 'atom'
 import { Image } from 'expo-image'
 import Logo from '@/assets/images/LogoIAPLUS_black.png'
+import Toast from 'react-native-root-toast'
+import { api } from '@/lib/api'
 
 export default function HomeScreen() {
   const [docInfo, setDocInfo] = useState<DocumentPickerAsset | null>(null)
   const [loading, setLoading] = useState(false)
+  const [serverDisponivel, setServerDisponivel] = useState(false)
   const [, setDataFromPDF] = useAtom(data)
+
+  const intervalRef = useRef<NodeJS.Timeout>()
+
+  const tryConnection = useCallback(() => {
+    api
+      .get('/server')
+      .then(() => {
+        setServerDisponivel(true)
+        clearInterval(intervalRef.current)
+      })
+      .catch(() => semComunicacao)
+  }, [])
 
   useEffect(() => {
     async function readPDFtoPrompt(docInfo: DocumentPickerAsset) {
       setLoading(true)
-      setDataFromPDF(await getPrompt(docInfo))
-      router.push('/chat')
-      setLoading(false)
+      await getPrompt(docInfo)
+        .then((response) => {
+          setDataFromPDF(response)
+          setLoading(false)
+          router.push('/chat')
+        })
+        .catch((e) => {
+          setLoading(false)
+          Toast.show(e.response.data.error, {
+            position: Toast.positions.CENTER,
+            backgroundColor: 'red',
+            duration: Toast.durations.SHORT,
+          })
+        })
     }
-
-    if (docInfo) {
+    tryConnection()
+    if (docInfo && serverDisponivel) {
       readPDFtoPrompt(docInfo)
       setDocInfo(null)
+    } else {
+      setDocInfo(null)
     }
-  }, [docInfo, setDataFromPDF])
+  }, [docInfo, serverDisponivel, setDataFromPDF, tryConnection])
+
+  function semComunicacao() {
+    Toast.show('Sem comunicação com o servidor', {
+      position: Toast.positions.CENTER,
+      backgroundColor: 'red',
+      duration: Toast.durations.SHORT,
+    })
+  }
+
+  useEffect(() => {
+    intervalRef.current = setInterval(function () {
+      tryConnection()
+    }, 1000)
+
+    return () => {
+      clearInterval(intervalRef.current)
+    }
+  }, [tryConnection])
 
   return (
     <View style={tw`flex-1 justify-between bg-white`}>
-      <View style={tw`items-center justify-center gap-2 px-4 py-8`}>
+      <View style={tw`items-center justify-center gap-2`}>
         <View style={tw`my-8`}>
-          <Text style={tw`font-robotoMono text-center text-xl`}>Bem vindo</Text>
-          <Text style={tw`font-robotoMono text-center text-xl`}>ao</Text>
+          <Text style={tw`text-center font-robotoMono text-xl`}>Bem vindo</Text>
+          <Text style={tw`text-center font-robotoMono text-xl`}>ao</Text>
           <Text style={tw`text-center font-space text-4xl`}> ProgenAI</Text>
         </View>
         <View style={tw`items-center gap-8`}>
-          <Text style={tw`font-robotoMono text-center text-base`}>
+          <Text style={tw`text-center font-robotoMono text-base`}>
             Selecione um exame de sangue criado pelo Progenos
           </Text>
           <DocumentPicker setDocInfo={setDocInfo} />
         </View>
       </View>
       <View style={tw`h-16 w-full flex-row items-center justify-center gap-2`}>
-        <Text style={tw`font-robotoMono text-center text-sm`}>Criado pela</Text>
+        <Text style={tw`text-center font-robotoMono text-sm`}>Criado pela</Text>
         <Image
           style={tw`h-10 w-20`}
           contentFit="contain"

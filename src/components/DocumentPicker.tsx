@@ -43,7 +43,7 @@ export default function DocumentPicker({ setDocInfo }: DocumentPickerProps) {
             style={tw`text-5xl text-slate-500`}
             name="upload-file"
           />
-          <Text style={tw`font-robotoMono text-center text-sm text-slate-400`}>
+          <Text style={tw`text-center font-robotoMono text-sm text-slate-400`}>
             *.pdf
           </Text>
         </View>
